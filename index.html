@@ -434,13 +434,13 @@
       }
       function gitCmd() {
         const dirty = $("opt-gitdirty").checked;
-        // git branch --show-current 需 git ≥ 2.22（2019 年）；symbolic-ref 自 git 1.6（2008 年）即支持，
-        // 老机器也能显示分支；detached HEAD 与非 git 目录时静默返回空
+        // git branch --show-current 需 git ≥ 2.22（2019 年）；symbolic-ref 自 git 1.6（2008 年）即支持，老机器可用
+        // 分支上显示分支名；detached HEAD 回退显示 commit 短 hash；非 git 目录静默返回空
         if (dirty) {
           // 整个 PS1 用单引号包裹，命令替换无需 \ 转义；内部统一用双引号避免引号冲突
-          return `$(b=$(git symbolic-ref --short -q HEAD 2>/dev/null); if [ -n "$b" ]; then printf "%s%s" "$b" "$(git status --porcelain 2>/dev/null | grep -q . && echo " *")" ; fi)`;
+          return `$(b=$(git symbolic-ref --short -q HEAD 2>/dev/null); if [ -z "$b" ]; then b=$(git rev-parse --short HEAD 2>/dev/null); fi; if [ -n "$b" ]; then printf "%s%s" "$b" "$(git status --porcelain 2>/dev/null | grep -q . && echo " *")" ; fi)`;
         }
-        return `$(git symbolic-ref --short -q HEAD 2>/dev/null)`;
+        return `$(b=$(git symbolic-ref --short -q HEAD 2>/dev/null); if [ -z "$b" ]; then b=$(git rev-parse --short HEAD 2>/dev/null); fi; echo "$b")`;
       }
 
       // ========== 初始化分段配色控件 ==========
