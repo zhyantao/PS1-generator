@@ -4,436 +4,749 @@
     <meta charset="UTF-8" />
     <title>在线 PS1 提示符生成器</title>
     <style>
+      :root {
+        --card-bg: #ffffff;
+        --border: #e2e2e2;
+        --accent: #4caf50;
+        --danger: #f44336;
+        --text: #333;
+      }
       body {
-        font-family: "Courier New", monospace;
-        max-width: 800px;
+        font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial,
+          sans-serif;
+        max-width: 860px;
         margin: 0 auto;
         padding: 20px;
-        background-color: #f5f5f5;
+        background-color: #f0f2f5;
+        color: var(--text);
+      }
+      h1 {
+        font-size: 22px;
+        margin: 8px 0 4px;
+      }
+      .subtitle {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+      .preview-wrap {
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+      .preview-bar {
+        background: #2b2b2b;
+        color: #9a9a9a;
+        font-size: 12px;
+        padding: 5px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .preview-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
       }
       .preview {
         background-color: #222;
         color: #eee;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 10px 0;
+        padding: 16px;
         min-height: 60px;
         white-space: pre;
+        font-family: "SF Mono", "Menlo", "Courier New", monospace;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      .preview span {
+        padding: 2px 6px;
+        border-radius: 2px;
+      }
+      .preview span.sep {
+        padding: 2px 0;
+      }
+      .preview span.prompt {
+        padding-right: 0;
+      }
+      .preview span.tight-right {
+        padding-right: 0;
+      }
+      .preview span.tight-left {
+        padding-left: 0;
       }
       .control-panel {
-        background: white;
-        padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        background: var(--card-bg);
+        padding: 20px 24px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       }
-      .color-option {
-        display: inline-block;
+      .section {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .section:last-of-type {
+        border-bottom: none;
+      }
+      .section h3 {
+        font-size: 14px;
+        margin: 0 0 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .step-badge {
+        background: var(--accent);
+        color: #fff;
+        border-radius: 50%;
         width: 20px;
         height: 20px;
-        margin: 5px;
-        border: 1px solid #ddd;
-        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 6px 0;
+      }
+      .seg-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0;
+        flex-wrap: wrap;
+      }
+      .seg-name {
+        width: 92px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #555;
+      }
+      select {
+        padding: 5px 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #fff;
+        font-size: 13px;
+        min-width: 130px;
+      }
+      label.inline {
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-right: 16px;
+      }
+      input[type="checkbox"] {
+        accent-color: var(--accent);
+      }
+      .seg-swatch {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .mini-swatch {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
       button {
-        background: #4caf50;
+        background: var(--accent);
         color: white;
         border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
+        padding: 9px 18px;
+        border-radius: 6px;
         cursor: pointer;
-        margin-top: 10px;
+        font-size: 14px;
+      }
+      .reset-btn {
+        background: var(--danger);
       }
       textarea {
         width: 100%;
-        height: 100px;
-        margin-top: 10px;
-        font-family: monospace;
+        height: 96px;
+        margin-top: 6px;
+        font-family: "SF Mono", "Menlo", "Courier New", monospace;
+        font-size: 12.5px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-sizing: border-box;
+        background: #fafafa;
+        color: #222;
       }
-      .reset-btn {
-        background: #f44336;
-        margin-left: 10px;
+      .tip {
+        font-size: 12px;
+        color: #999;
+        margin-top: 8px;
+        line-height: 1.6;
       }
-      .section {
-        margin-bottom: 15px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #eee;
+      @keyframes blink-anim {
+        50% {
+          opacity: 0;
+        }
       }
-      .selected {
-        border: 2px solid #000;
+      .blink {
+        animation: blink-anim 1s step-start infinite;
       }
     </style>
   </head>
   <body>
     <h1>PS1 提示符生成器</h1>
+    <div class="subtitle">Ubuntu 默认 · 支持经典与现代分段 · 纯 ASCII 兼容老终端</div>
 
-    <div class="preview" id="ps1-preview">
-      <!-- 动态预览将显示在这里 -->
+    <div class="preview-wrap">
+      <div class="preview-bar">
+        <span class="preview-dot" style="background: #ff5f57"></span>
+        <span class="preview-dot" style="background: #febc2e"></span>
+        <span class="preview-dot" style="background: #28c840"></span>
+        <span style="margin-left: 6px">实时预览</span>
+      </div>
+      <div class="preview" id="ps1-preview"></div>
     </div>
 
     <div class="control-panel">
       <div class="section">
-        <h3>1. 文字样式</h3>
-        <div>
-          <label><input type="checkbox" name="style" value="1" /> 粗体</label>
-          <label><input type="checkbox" name="style" value="4" /> 下划线</label>
-          <label><input type="checkbox" name="style" value="5" /> 闪烁</label>
-          <label><input type="checkbox" name="style" value="7" /> 反显</label>
+        <h3><span class="step-badge">1</span> 布局模板</h3>
+        <div class="row">
+          <select id="layout">
+            <option value="ubuntu" selected>Ubuntu 默认 · user@host:路径$</option>
+            <option value="classic">经典 · user@host 路径</option>
+            <option value="modern-single">现代单行 · $ 路径 [git]</option>
+            <option value="modern-dual">现代双行 · 路径 [git] 换行 $</option>
+          </select>
         </div>
       </div>
 
       <div class="section">
-        <h3>2. 颜色设置</h3>
-        <div>
-          <strong>默认文字颜色：</strong>
-          <div id="text-colors">
-            <!-- 通过JS动态生成 -->
-          </div>
-
-          <strong>默认背景颜色：</strong>
-          <div id="bg-colors">
-            <!-- 通过JS动态生成 -->
-          </div>
-
-          <strong>主机名颜色：</strong>
-          <div id="host-colors">
-            <!-- 通过JS动态生成 -->
-          </div>
-
-          <strong>路径颜色：</strong>
-          <div id="path-colors">
-            <!-- 通过JS动态生成 -->
-          </div>
+        <h3><span class="step-badge">2</span> 文字样式</h3>
+        <div class="row">
+          <label class="inline"><input type="checkbox" name="style" value="1" /> 粗体</label>
+          <label class="inline"><input type="checkbox" name="style" value="4" /> 下划线</label>
+          <label class="inline"><input type="checkbox" name="style" value="5" /> 闪烁</label>
+          <label class="inline"><input type="checkbox" name="style" value="7" /> 反显</label>
         </div>
       </div>
 
       <div class="section">
-        <h3>3. 内容模板</h3>
-        <select id="content-template">
-          <option value="\u@\h \w">用户名@主机 路径 (\u@\h \w)</option>
-          <option value="\w">仅路径 (\w)</option>
-          <option value="custom">自定义</option>
-        </select>
-        <textarea
-          id="custom-content"
-          placeholder="输入自定义内容..."
-          style="display: none"
-        ></textarea>
+        <h3><span class="step-badge">3</span> 分段配色（Powerlevel10k 风格）</h3>
+        <div id="seg-colors"><!-- JS 生成：每段 前景/背景 选择器 --></div>
       </div>
 
       <div class="section">
-        <h3>4. 其他选项</h3>
-        <label><input type="checkbox" id="newline" /> 换行显示</label>
+        <h3><span class="step-badge">4</span> 分隔符与提示符</h3>
+        <div class="row">
+          <label class="inline">
+            分隔符
+            <select id="separator">
+              <option value="none">无（lean 风格）</option>
+              <option value=">" selected>大于号 &gt;</option>
+              <option value="|">竖线 |</option>
+              <option value="/">斜线 /</option>
+            </select>
+          </label>
+          <label class="inline">
+            提示符符号
+            <select id="prompt-char">
+              <option value="$" selected>$（美元，root 显示 #）</option>
+              <option value=">">&gt;（大于号）</option>
+              <option value="#">#（井号）</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       <div class="section">
-        <h3>5. 生成的 PS1 代码</h3>
-        <textarea id="ps1-output" readonly></textarea>
+        <h3><span class="step-badge">5</span> 其他选项</h3>
+        <div class="row">
+          <label class="inline"><input type="checkbox" id="opt-context" /> 显示 用户@主机 段</label>
+          <label class="inline"><input type="checkbox" id="opt-git" checked /> 显示 Git 分支（所有布局均生效）</label>
+          <label class="inline"><input type="checkbox" id="opt-gitdirty" checked /> Git 修改标记（*）</label>
+          <label class="inline"><input type="checkbox" id="opt-newline" /> 提示符换行显示</label>
+        </div>
       </div>
 
-      <button id="reset-btn" class="reset-btn">重置样式</button>
+      <div class="section">
+        <h3><span class="step-badge">6</span> 生成的 PS1 代码</h3>
+        <textarea id="ps1-output" readonly spellcheck="false"></textarea>
+        <div class="tip">
+          提示：颜色转义已用 \[ \] 包裹，bash 计算提示符宽度时不会把颜色序列算进去，长命令换行不会错位；分隔符使用 256 色（38;5;N / 48;5;N）；分隔符与符号全部使用 ASCII 字符（> | / $ # *），无需特殊字体，老终端也可正常显示；PS1 使用单引号赋值，其中的 $(...) 命令替换会在每次提示符显示时执行，不会在赋值时被展开。
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="reset-btn" class="reset-btn">重置为默认</button>
+      </div>
     </div>
 
     <script>
-      // 颜色定义
-      const colors = [
-        { name: "黑", code: "30", bg: "40", hex: "#000000" },
-        { name: "红", code: "31", bg: "41", hex: "#cc0000" },
-        { name: "绿", code: "32", bg: "42", hex: "#4e9a06" },
-        { name: "黄", code: "33", bg: "43", hex: "#c4a000" },
-        { name: "蓝", code: "34", bg: "44", hex: "#3465a4" },
-        { name: "紫", code: "35", bg: "45", hex: "#75507b" },
-        { name: "青", code: "36", bg: "46", hex: "#06989a" },
-        { name: "白", code: "37", bg: "47", hex: "#d3d7cf" },
+      // ========== 调色板（基础 16 色 + p10k 常用 256 色） ==========
+      const palette = [
+        { name: "默认", fg: "", bg: "", hex: null },
+        { name: "黑", fg: "30", bg: "40", hex: "#1e1e1e" },
+        { name: "红", fg: "31", bg: "41", hex: "#cc0000" },
+        { name: "绿", fg: "32", bg: "42", hex: "#4e9a06" },
+        { name: "黄", fg: "33", bg: "43", hex: "#c4a000" },
+        { name: "蓝", fg: "34", bg: "44", hex: "#3465a4" },
+        { name: "紫", fg: "35", bg: "45", hex: "#75507b" },
+        { name: "青", fg: "36", bg: "46", hex: "#06989a" },
+        { name: "白", fg: "37", bg: "47", hex: "#d3d7cf" },
+        { name: "亮黑", fg: "90", bg: "100", hex: "#555753" },
+        { name: "亮红", fg: "91", bg: "101", hex: "#ef2929" },
+        { name: "亮绿", fg: "92", bg: "102", hex: "#8ae234" },
+        { name: "亮黄", fg: "93", bg: "103", hex: "#fce94f" },
+        { name: "亮蓝", fg: "94", bg: "104", hex: "#729fcf" },
+        { name: "亮紫", fg: "95", bg: "105", hex: "#ad7fa8" },
+        { name: "亮青", fg: "96", bg: "106", hex: "#34e2e2" },
+        { name: "亮白", fg: "97", bg: "107", hex: "#eeeeec" },
+        { name: "灰236", fg: "38;5;236", bg: "48;5;236", hex: "#303030" },
+        { name: "灰238", fg: "38;5;238", bg: "48;5;238", hex: "#444444" },
+        { name: "灰240", fg: "38;5;240", bg: "48;5;240", hex: "#585858" },
+        { name: "灰244", fg: "38;5;244", bg: "48;5;244", hex: "#808080" },
+        { name: "灰248", fg: "38;5;248", bg: "48;5;248", hex: "#949494" },
+        { name: "蓝39", fg: "38;5;39", bg: "48;5;39", hex: "#00afff" },
+        { name: "蓝33", fg: "38;5;33", bg: "48;5;33", hex: "#0087d7" },
+        { name: "紫99", fg: "38;5;99", bg: "48;5;99", hex: "#875fff" },
+        { name: "紫135", fg: "38;5;135", bg: "48;5;135", hex: "#af5fff" },
+        { name: "橙214", fg: "38;5;214", bg: "48;5;214", hex: "#ffaf00" },
+        { name: "橙208", fg: "38;5;208", bg: "48;5;208", hex: "#ff8700" },
+        { name: "红203", fg: "38;5;203", bg: "48;5;203", hex: "#ff5f5f" },
+        { name: "红161", fg: "38;5;161", bg: "48;5;161", hex: "#d7005f" },
+        { name: "绿76", fg: "38;5;76", bg: "48;5;76", hex: "#5fdf00" },
+        { name: "绿106", fg: "38;5;106", bg: "48;5;106", hex: "#87af00" },
+        { name: "青37", fg: "38;5;37", bg: "48;5;37", hex: "#00afaf" },
       ];
 
-      // 初始化颜色选择器
-      function initColorPickers() {
-        const textColorsDiv = document.getElementById("text-colors");
-        const bgColorsDiv = document.getElementById("bg-colors");
-        const hostColorsDiv = document.getElementById("host-colors");
-        const pathColorsDiv = document.getElementById("path-colors");
+      // 段定义
+      const SEGMENTS = [
+        { key: "context", label: "用户@主机" },
+        { key: "dir", label: "路径" },
+        { key: "git", label: "Git 状态" },
+        { key: "prompt", label: "提示符" },
+      ];
 
-        colors.forEach((color) => {
-          // 默认文字颜色选择
-          const textDiv = document.createElement("div");
-          textDiv.className = "color-option";
-          textDiv.style.backgroundColor = color.hex;
-          textDiv.dataset.code = color.code;
-          textDiv.dataset.type = "text";
-          textDiv.title = color.name;
-          textColorsDiv.appendChild(textDiv);
+      // 默认配色（Ubuntu 风格：绿 user@host、蓝路径）
+      const DEFAULTS = {
+        context: { fg: "绿", bg: "默认" },
+        dir: { fg: "蓝", bg: "默认" },
+        git: { fg: "红", bg: "默认" },
+        prompt: { fg: "默认", bg: "默认" },
+      };
 
-          // 默认背景颜色选择
-          const bgDiv = document.createElement("div");
-          bgDiv.className = "color-option";
-          bgDiv.style.backgroundColor = color.hex;
-          bgDiv.dataset.code = color.bg;
-          bgDiv.dataset.type = "bg";
-          bgDiv.title = color.name + "背景";
-          bgColorsDiv.appendChild(bgDiv);
+      // 布局预设：切换布局 = 应用整套配置（配色/分隔符/提示符/粗体/显示项）
+      const LAYOUT_PRESETS = {
+        ubuntu: {
+          sep: "none",
+          promptChar: "$",
+          newline: false,
+          bold: true,
+          showContext: true,
+          showGit: false,
+          showDirty: false,
+          colors: {
+            context: { fg: "绿", bg: "默认" },
+            dir: { fg: "蓝", bg: "默认" },
+            git: { fg: "红", bg: "默认" },
+            prompt: { fg: "默认", bg: "默认" },
+          },
+        },
+        classic: {
+          sep: "none",
+          promptChar: "$",
+          newline: false,
+          bold: false,
+          showContext: true,
+          showGit: false,
+          showDirty: false,
+          colors: {
+            context: { fg: "绿", bg: "默认" },
+            dir: { fg: "蓝", bg: "默认" },
+            git: { fg: "默认", bg: "默认" },
+            prompt: { fg: "默认", bg: "默认" },
+          },
+        },
+        "modern-single": {
+          sep: ">",
+          promptChar: "$",
+          newline: false,
+          bold: false,
+          showContext: false,
+          showGit: true,
+          showDirty: true,
+          colors: {
+            context: { fg: "黑", bg: "灰240" },
+            dir: { fg: "亮白", bg: "灰236" },
+            git: { fg: "黑", bg: "灰244" },
+            prompt: { fg: "蓝39", bg: "默认" },
+          },
+        },
+        "modern-dual": {
+          sep: ">",
+          promptChar: "$",
+          newline: false,
+          bold: false,
+          showContext: false,
+          showGit: true,
+          showDirty: true,
+          colors: {
+            context: { fg: "黑", bg: "灰240" },
+            dir: { fg: "亮白", bg: "灰236" },
+            git: { fg: "黑", bg: "灰244" },
+            prompt: { fg: "蓝39", bg: "默认" },
+          },
+        },
+      };
 
-          // 主机名颜色选择
-          const hostDiv = document.createElement("div");
-          hostDiv.className = "color-option";
-          hostDiv.style.backgroundColor = color.hex;
-          hostDiv.dataset.code = color.code;
-          hostDiv.dataset.type = "host";
-          hostDiv.title = color.name + "主机名";
-          hostColorsDiv.appendChild(hostDiv);
-
-          // 路径颜色选择
-          const pathDiv = document.createElement("div");
-          pathDiv.className = "color-option";
-          pathDiv.style.backgroundColor = color.hex;
-          pathDiv.dataset.code = color.code;
-          pathDiv.dataset.type = "path";
-          pathDiv.title = color.name + "路径";
-          pathColorsDiv.appendChild(pathDiv);
-        });
+      // ========== 工具函数 ==========
+      function $(id) {
+        return document.getElementById(id);
       }
-
-      // 处理颜色选择
-      document.addEventListener("click", function (e) {
-        if (e.target.classList.contains("color-option")) {
-          const type = e.target.dataset.type;
-          const code = e.target.dataset.code;
-
-          // 移除之前的选择
-          document
-            .querySelectorAll(`.color-option[data-type="${type}"].selected`)
-            .forEach((el) => el.classList.remove("selected"));
-
-          // 添加新选择
-          e.target.classList.add("selected");
-          updatePreview();
-        }
-      });
-
-      // 内容模板切换
-      document
-        .getElementById("content-template")
-        .addEventListener("change", function () {
-          const customContent = document.getElementById("custom-content");
-          customContent.style.display =
-            this.value === "custom" ? "block" : "none";
-          updatePreview();
-        });
-
-      // 更新预览
-      function updatePreview() {
-        const defaultContent = "user@host ~/path";
-        const defaultPrompt = "$ ";
-
-        const styles = Array.from(
+      function getColor(segKey, kind) {
+        const sel = document.querySelector(
+          `.color-select[data-seg="${segKey}"][data-kind="${kind}"]`
+        );
+        return palette[parseInt(sel.value, 10)];
+      }
+      function getStyles() {
+        return Array.from(
           document.querySelectorAll('input[name="style"]:checked')
-        )
-          .map((el) => el.value)
-          .join(";");
-
-        const textColor = document.querySelector(
-          '.color-option[data-type="text"].selected'
-        )?.dataset.code;
-        const bgColor = document.querySelector(
-          '.color-option[data-type="bg"].selected'
-        )?.dataset.code;
-
-        const hostColor = document.querySelector(
-          '.color-option[data-type="host"].selected'
-        )?.dataset.code;
-
-        const pathColor = document.querySelector(
-          '.color-option[data-type="path"].selected'
-        )?.dataset.code;
-
-        const template = document.getElementById("content-template").value;
-        let content =
-          template === "custom"
-            ? document.getElementById("custom-content").value
-            : template;
-
-        const newline = document.getElementById("newline").checked;
-        let displayContent = content;
-        let ps1Content = content;
-
-        if (newline) {
-          // 预览显示用实际换行
-          displayContent = `${content}`;
-          // PS1代码用转义的\n
-          ps1Content = `${content}\\n`;
-        } else {
-          // 非换行模式末尾加空格
-          displayContent = `${content} `;
-          ps1Content = `${content} `;
+        ).map((el) => el.value);
+      }
+      function sgrCodesFor(segKey) {
+        const styles = getStyles();
+        const fg = getColor(segKey, "fg").fg;
+        const bg = getColor(segKey, "bg").bg;
+        return [...styles, fg, bg].filter(Boolean);
+      }
+      function sepChar() {
+        const v = $("separator").value;
+        if (v === "none") return "";
+        return v; // 纯 ASCII：> | /
+      }
+      function gitCmd() {
+        const dirty = $("opt-gitdirty").checked;
+        if (dirty) {
+          // 整个 PS1 用单引号包裹，命令替换无需 \ 转义；内部统一用双引号避免引号冲突
+          return `$(b=$(git branch --show-current 2>/dev/null); if [ -n "$b" ]; then printf "%s%s" "$b" "$(git status --porcelain 2>/dev/null | grep -q . && echo " *")" ; fi)`;
         }
-
-        // 替换占位符用于预览显示
-        displayContent = displayContent
-          .replace(/\\u@\\h/g, "user@host") // 将\u@\h作为一个整体替换
-          .replace(/\\w/g, "~/path");
-
-        // 构建默认样式
-        const defaultStyles = [];
-        if (styles) defaultStyles.push(styles);
-        if (textColor) defaultStyles.push(textColor);
-        if (bgColor) defaultStyles.push(bgColor);
-        const defaultStyle = defaultStyles.join(";");
-
-        // 显示预览（使用CSS模拟ANSI效果）
-        const previewDiv = document.getElementById("ps1-preview");
-        previewDiv.innerHTML = "";
-
-        // 处理内容中的主机名和路径部分
-        const parts = displayContent.split(/(user@host|\~\/path)/);
-
-        parts.forEach((part) => {
-          if (part === "user@host" && hostColor) {
-            const hostSpan = document.createElement("span");
-            hostSpan.textContent = part;
-            const color = colors.find((c) => c.code === hostColor);
-            if (color) hostSpan.style.color = color.hex;
-
-            // 应用全局样式
-            if (styles.includes("1")) hostSpan.style.fontWeight = "bold";
-            if (styles.includes("4"))
-              hostSpan.style.textDecoration = "underline";
-            if (styles.includes("7")) hostSpan.style.filter = "invert(100%)";
-            if (bgColor) {
-              const bg = colors.find((c) => c.bg === bgColor);
-              if (bg) hostSpan.style.backgroundColor = bg.hex;
-            }
-
-            previewDiv.appendChild(hostSpan);
-          } else if (part === "~/path" && pathColor) {
-            const pathSpan = document.createElement("span");
-            pathSpan.textContent = part;
-            const color = colors.find((c) => c.code === pathColor);
-            if (color) pathSpan.style.color = color.hex;
-
-            // 应用全局样式
-            if (styles.includes("1")) pathSpan.style.fontWeight = "bold";
-            if (styles.includes("4"))
-              pathSpan.style.textDecoration = "underline";
-            if (styles.includes("7")) pathSpan.style.filter = "invert(100%)";
-            if (bgColor) {
-              const bg = colors.find((c) => c.bg === bgColor);
-              if (bg) pathSpan.style.backgroundColor = bg.hex;
-            }
-
-            previewDiv.appendChild(pathSpan);
-          } else if (part.trim() !== "") {
-            const defaultSpan = document.createElement("span");
-            defaultSpan.textContent = part;
-
-            // 应用默认CSS样式模拟ANSI效果
-            if (styles.includes("1")) defaultSpan.style.fontWeight = "bold";
-            if (styles.includes("4"))
-              defaultSpan.style.textDecoration = "underline";
-            if (styles.includes("7")) {
-              defaultSpan.style.filter = "invert(100%)";
-            }
-            if (textColor) {
-              const color = colors.find((c) => c.code === textColor);
-              if (color) defaultSpan.style.color = color.hex;
-            }
-            if (bgColor) {
-              const color = colors.find((c) => c.bg === bgColor);
-              if (color) defaultSpan.style.backgroundColor = color.hex;
-            }
-
-            previewDiv.appendChild(defaultSpan);
-          } else {
-            // 对于空格，直接添加文本节点
-            previewDiv.appendChild(document.createTextNode(part));
-          }
-        });
-
-        // 添加提示符
-        if (newline) {
-          previewDiv.appendChild(document.createTextNode("\n$ "));
-        } else {
-          previewDiv.appendChild(document.createTextNode("$ "));
-        }
-
-        // 生成PS1代码
-        let ps1Code = "";
-        if (template === "\\u@\\h \\w") {
-          // 特殊处理用户名@主机 路径模板
-          const parts = ps1Content.split(/(\\u@\\h|\\w)/); // 将\u@\h作为一个整体匹配
-
-          let result = "";
-          parts.forEach((part) => {
-            if (part === "\\u@\\h" && hostColor) {
-              result += `\\e[${defaultStyle};${hostColor}m${part}\\e[0m`;
-            } else if (part === "\\w" && pathColor) {
-              result += `\\e[${defaultStyle};${pathColor}m${part}\\e[0m`;
-            } else {
-              result += part;
-            }
-          });
-
-          ps1Code = `export PS1="${result}\\$ "`;
-        } else {
-          // 其他模板
-          ps1Code = `export PS1="${ps1Content}\\$ "`;
-        }
-
-        document.getElementById("ps1-output").value = ps1Code;
-
-        // 当没有任何样式时显示默认预览
-        if (!styles && !textColor && !bgColor && !hostColor && !pathColor) {
-          previewDiv.innerHTML =
-            defaultContent + (newline ? "\n" : " ") + defaultPrompt;
-        }
+        return `$(git branch --show-current 2>/dev/null)`;
       }
 
-      function resetAll() {
-        // 1. 重置文字样式
-        document.querySelectorAll('input[name="style"]').forEach((checkbox) => {
-          checkbox.checked = false;
+      // ========== 初始化分段配色控件 ==========
+      function initSegmentControls() {
+        const container = $("seg-colors");
+        SEGMENTS.forEach((seg) => {
+          const row = document.createElement("div");
+          row.className = "seg-row";
+          const name = document.createElement("span");
+          name.className = "seg-name";
+          name.textContent = seg.label;
+          row.appendChild(name);
+          row.appendChild(makeColorSelect(seg.key, "fg"));
+          row.appendChild(makeColorSelect(seg.key, "bg"));
+          const swatch = document.createElement("span");
+          swatch.className = "seg-swatch";
+          swatch.dataset.seg = seg.key;
+          row.appendChild(swatch);
+          container.appendChild(row);
+        });
+      }
+      function makeColorSelect(segKey, kind) {
+        const sel = document.createElement("select");
+        sel.className = "color-select";
+        sel.dataset.seg = segKey;
+        sel.dataset.kind = kind;
+        palette.forEach((c, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = c.name;
+          if (c.hex) opt.style.backgroundColor = c.hex;
+          sel.appendChild(opt);
+        });
+        // 应用默认值
+        const def = DEFAULTS[segKey][kind];
+        palette.forEach((c, i) => {
+          if (c.name === def) sel.value = i;
+        });
+        sel.addEventListener("change", updatePreview);
+        return sel;
+      }
+      function updateSwatches() {
+        SEGMENTS.forEach((seg) => {
+          const sw = document.querySelector(
+            `.seg-swatch[data-seg="${seg.key}"]`
+          );
+          sw.innerHTML = "";
+          ["fg", "bg"].forEach((kind) => {
+            const c = getColor(seg.key, kind);
+            const dot = document.createElement("span");
+            dot.className = "mini-swatch";
+            dot.style.background = c.hex || "#ddd";
+            dot.title = (kind === "fg" ? "前景：" : "背景：") + c.name;
+            sw.appendChild(dot);
+          });
+        });
+      }
+
+      // ========== 当前配置 → 段列表 ==========
+      function getSegments() {
+        const layout = $("layout").value;
+        const segs = [];
+        // 上下文段：所有布局均可用选项开关（Ubuntu 布局保留 debian_chroot 前缀）
+        if ($("opt-context").checked) {
+          segs.push(
+            layout === "ubuntu"
+              ? {
+                  type: "context",
+                  code: "${debian_chroot:+($debian_chroot)}\\u@\\h",
+                  preview: "user@host",
+                }
+              : { type: "context", code: "\\u@\\h", preview: "user@host" }
+          );
+        }
+        // 路径段：Ubuntu 布局用冒号紧贴上下文，与原生一致
+        segs.push({
+          type: "dir",
+          code: "\\w",
+          preview: "~/path",
+          join: layout === "ubuntu" ? ":" : undefined,
+        });
+        // Git 段：所有布局均支持，用空格与路径分隔
+        if ($("opt-git").checked) {
+          segs.push({
+            type: "git",
+            code: gitCmd(),
+            preview: $("opt-gitdirty").checked ? "main *" : "main",
+            join: layout === "ubuntu" ? " " : undefined,
+          });
+        }
+        return segs;
+      }
+
+      // ========== PS1 代码生成 ==========
+      function buildPS1(contentSegs, promptSeg, useSep, newline, promptLead = " ") {
+        const sepCh = sepChar();
+        let body = "";
+        let prev = null; // { sepFg, bg }
+
+        contentSegs.forEach((seg, i) => {
+          const c = getColor(seg.type, "fg");
+          const b = getColor(seg.type, "bg");
+          const codes = sgrCodesFor(seg.type);
+          if (useSep) {
+            if (i > 0 && prev) {
+              const target = b.bg
+                ? `${prev.sepFg};${b.bg}`
+                : `${prev.sepFg};49`;
+              body += `\\[\\e[${target}m\\]${sepCh}`;
+            }
+            body += codes.length
+              ? `\\[\\e[${codes.join(";")}m\\]${seg.code}`
+              : seg.code;
+          } else {
+            if (i > 0) body += seg.join || " ";
+            body += codes.length
+              ? `\\[\\e[${codes.join(";")}m\\]${seg.code}\\[\\e[0m\\]`
+              : seg.code;
+          }
+          // 分隔符前景 = 当前段背景色（转为前景码），背景 = 下一段背景
+          if (b.bg) prev = { sepFg: b.fg, bg: b.bg };
         });
 
-        // 2. 重置颜色选择
-        document.querySelectorAll(".color-option.selected").forEach((el) => {
-          el.classList.remove("selected");
+        const pfg = getColor("prompt", "fg").fg;
+        const pbg = getColor("prompt", "bg").bg;
+        const promptInBand = useSep && pbg;
+
+        // 内容段色带结尾（箭头 → 默认背景 或 → prompt 背景）
+        if (useSep && prev) {
+          const target = promptInBand ? pbg : "49";
+          body += `\\[\\e[${prev.sepFg};${target}m\\]${sepCh}`;
+          body += `\\[\\e[0m\\]`;
+        }
+
+        // 无分隔符模式下，内容段与提示符之间加前导字符（Ubuntu 为无）
+        if (!useSep && contentSegs.length) body += promptLead;
+
+        if (newline) body += "\\n";
+
+        // 提示符段
+        const promptCodes = [pfg, pbg].filter(Boolean);
+        if (pbg) {
+          if (useSep) {
+            body += `\\[\\e[${promptCodes.join(";")}m\\]${promptSeg.code}`;
+            body += `\\[\\e[${pbg};49m\\]${sepCh}\\[\\e[0m\\]`;
+          } else {
+            body += `\\[\\e[${promptCodes.join(";")}m\\]${promptSeg.code}\\[\\e[0m\\]`;
+          }
+        } else {
+          body += pfg
+            ? `\\[\\e[${pfg}m\\]${promptSeg.code}\\[\\e[0m\\]`
+            : promptSeg.code;
+        }
+        body += " ";
+        return body;
+      }
+
+      // ========== 预览渲染 ==========
+      function applyStyles(span) {
+        const styles = getStyles();
+        if (styles.includes("1")) span.style.fontWeight = "bold";
+        if (styles.includes("4")) span.style.textDecoration = "underline";
+        if (styles.includes("5")) span.classList.add("blink");
+        if (styles.includes("7")) span.style.filter = "invert(100%)";
+      }
+      function renderPreview(contentSegs, promptSeg, useSep, newline, promptLead = " ") {
+        const div = $("ps1-preview");
+        div.innerHTML = "";
+        const sepCh = sepChar();
+        const addText = (t) => div.appendChild(document.createTextNode(t));
+
+        let prevBgHex = null;
+        contentSegs.forEach((seg, i) => {
+          const fgHex = getColor(seg.type, "fg").hex;
+          const bgHex = getColor(seg.type, "bg").hex;
+          const nextJoin = contentSegs[i + 1] ? contentSegs[i + 1].join : null;
+          if (useSep && i > 0 && prevBgHex) {
+            const s = document.createElement("span");
+            s.className = "sep";
+            s.textContent = sepCh;
+            s.style.color = prevBgHex;
+            s.style.backgroundColor = bgHex || "transparent";
+            div.appendChild(s);
+          } else if (!useSep && i > 0) {
+            addText(seg.join || " ");
+          }
+          const span = document.createElement("span");
+          if (nextJoin === ":" || (promptLead === "" && i === contentSegs.length - 1)) {
+            span.classList.add("tight-right");
+          }
+          if (seg.join === ":") span.classList.add("tight-left");
+          span.textContent = seg.preview;
+          if (fgHex) span.style.color = fgHex;
+          if (bgHex) span.style.backgroundColor = bgHex;
+          applyStyles(span);
+          div.appendChild(span);
+          if (bgHex) prevBgHex = bgHex;
         });
 
-        // 3. 重置内容模板
-        const templateSelect = document.getElementById("content-template");
-        templateSelect.value = "\\u@\\h \\w";
-        document.getElementById("custom-content").style.display = "none";
-        document.getElementById("custom-content").value = "";
+        if (useSep && prevBgHex) {
+          const s = document.createElement("span");
+          s.className = "sep";
+          s.textContent = sepCh;
+          s.style.color = prevBgHex;
+          div.appendChild(s);
+        }
 
-        // 4. 重置换行选项
-        document.getElementById("newline").checked = false;
+        // 无分隔符模式下，内容段与提示符之间加前导字符（Ubuntu 为无）
+        if (!useSep && contentSegs.length) addText(promptLead);
 
-        // 5. 更新预览
+        if (newline) addText("\n");
+
+        const pfgHex = getColor("prompt", "fg").hex;
+        const pbgHex = getColor("prompt", "bg").hex;
+        const pspan = document.createElement("span");
+        pspan.className = "prompt";
+        pspan.textContent = promptSeg.preview;
+        if (pfgHex) pspan.style.color = pfgHex;
+        if (pbgHex) pspan.style.backgroundColor = pbgHex;
+        // 提示符段不应用文字样式，与生成代码保持一致（生成端 prompt 不含样式码）
+        div.appendChild(pspan);
+        // 提示符带背景时补结尾分隔符（对齐色带）
+        if (useSep && pbgHex) {
+          const s = document.createElement("span");
+          s.className = "sep";
+          s.textContent = sepCh;
+          s.style.color = pbgHex;
+          div.appendChild(s);
+        }
+        addText(" ");
+      }
+
+      // ========== 布局预设应用：切换布局 = 应用整套配置 ==========
+      function applyLayoutPreset(layout) {
+        const p = LAYOUT_PRESETS[layout];
+        if (!p) return;
+        $("separator").value = p.sep;
+        $("prompt-char").value = p.promptChar;
+        $("opt-newline").checked = p.newline;
+        $("opt-context").checked = p.showContext;
+        $("opt-git").checked = p.showGit;
+        $("opt-gitdirty").checked = p.showDirty;
+        document
+          .querySelectorAll('input[name="style"]')
+          .forEach((cb) => (cb.checked = p.bold && cb.value === "1"));
+        SEGMENTS.forEach((seg) => {
+          ["fg", "bg"].forEach((kind) => {
+            const sel = document.querySelector(
+              `.color-select[data-seg="${seg.key}"][data-kind="${kind}"]`
+            );
+            palette.forEach((c, i) => {
+              if (c.name === p.colors[seg.key][kind]) sel.value = i;
+            });
+          });
+        });
         updatePreview();
       }
 
-      // 初始化
-      initColorPickers();
+      // ========== 主更新入口 ==========
+      function updatePreview() {
+        const layout = $("layout").value;
+        const useSep = $("separator").value !== "none";
+        const newline =
+          layout === "modern-dual" || $("opt-newline").checked;
+        const promptChar = $("prompt-char").value;
+        const promptCode = promptChar === "$" ? "\\$" : promptChar;
 
-      // 绑定事件
+        const contentSegs = getSegments();
+        const promptSeg = { code: promptCode, preview: promptChar };
+        // Ubuntu 原版 \w 后直接接 \$，无前导空格；开启 Git 段后补一个空格分隔
+        const promptLead = layout === "ubuntu" && !$("opt-git").checked ? "" : " ";
+
+        // PS1 用单引号包裹：赋值时不展开，命令替换在每次提示符时惰性执行（bash 3.2 与 4/5 均适用）
+        $("ps1-output").value = `export PS1='${buildPS1(
+          contentSegs,
+          promptSeg,
+          useSep,
+          newline,
+          promptLead
+        )}'`;
+
+        renderPreview(contentSegs, promptSeg, useSep, newline, promptLead);
+        updateSwatches();
+      }
+
+      // ========== 重置 ==========
+      function resetAll() {
+        $("layout").value = "ubuntu";
+        applyLayoutPreset("ubuntu");
+      }
+
+      // ========== 初始化 ==========
+      initSegmentControls();
+
+      // 绑定事件（布局切换时应用整套预设）
+      $("layout").addEventListener("change", () =>
+        applyLayoutPreset($("layout").value)
+      );
+      ["separator", "prompt-char", "opt-context", "opt-git", "opt-gitdirty", "opt-newline"].forEach(
+        (id) => $(id).addEventListener("change", updatePreview)
+      );
       document
-        .querySelectorAll('input[type="checkbox"], #custom-content')
-        .forEach((el) => {
-          el.addEventListener("change", updatePreview);
-        });
+        .querySelectorAll('input[name="style"]')
+        .forEach((cb) => cb.addEventListener("change", updatePreview));
 
-      document
-        .getElementById("custom-content")
-        .addEventListener("input", updatePreview);
+      $("reset-btn").addEventListener("click", resetAll);
 
-      // 初始预览
-      updatePreview();
-
-      // 页面加载时也重置一次确保初始状态
-      window.addEventListener("DOMContentLoaded", () => {
-        resetAll();
-        document
-          .getElementById("reset-btn")
-          .addEventListener("click", resetAll);
-      });
+      applyLayoutPreset($("layout").value);
     </script>
   </body>
 </html>
